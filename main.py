@@ -1,7 +1,7 @@
 import redis
 import json
 from aion.logger import lprint
-from aion.microservice import main_decorator, Options
+from aion.microservice import main_decorator, Options, WITH_KANBAN
 
 SERVICE_NAME = "get-response-of-face-api"
 DEFAULT_REDIS_HOST = "redis-cluster"
@@ -13,11 +13,11 @@ class RedisClient:
     def hmset(self, key, value):
         self.client.hmset(key, value)
 
-@main_decorator(SERVICE_NAME)
+@main_decorator(SERVICE_NAME, WITH_KANBAN)
 def main(opt: Options):
     conn = opt.get_conn()
     num = opt.get_number()
-    for kanban in conn.get_kanban_itr(SERVICE_NAME, num): 
+    for kanban in conn.get_kanban_itr(): 
         prior_res = kanban.get_result()
         redis_key = int(kanban.get_metadata().get("rediskey"))
         customer = kanban.get_metadata().get("status")
